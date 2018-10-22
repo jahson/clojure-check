@@ -12,11 +12,19 @@ let s:base_dir = expand('<sfile>:h:h')
 let g:clojure_check_bin = s:base_dir.'/bin/clojure-check-v'.s:check_version
 
 function! s:ClojureHost()
-  return fireplace#client().connection.transport.host
+  if has_key(fireplace#client(), 'connection')
+    return fireplace#client().connection.transport.host
+  else
+    return v:null
+  endif
 endfunction
 
 function! s:ClojurePort()
-  return fireplace#client().connection.transport.port
+  if has_key(fireplace#client(), 'connection')
+    return fireplace#client().connection.transport.port
+  else
+    return v:null
+  endif
 endfunction
 
 function! s:ClojureHostPort()
@@ -27,6 +35,9 @@ function! s:ClojureHostPort()
     endif
   else
     let host_port = [s:ClojureHost(), s:ClojurePort()]
+    if string(host_port[0]) == "v:null"
+      throw 'Fireplace: No repl connection'
+    endif
   endif
   return join(host_port, ":")
 endfunction
